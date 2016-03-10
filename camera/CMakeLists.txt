@@ -26,16 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   rostest
   pcl_ros
-)
-
-add_service_files(
-  FILES
-  cameraConfiguration.srv
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
+  realsense
 )
 
 #add dynamic reconfigure api
@@ -43,29 +34,40 @@ generate_dynamic_reconfigure_options(
   cfg/camera_params.cfg
 )
 
-
+catkin_package(
+    CATKIN_DEPENDS dynamic_reconfigure roscpp nodelet cv_bridge image_transport camera_info_manager tf message_generation std_msgs sensor_msgs pcl_ros realsense
+    LIBRARIES realsense_camera_nodelet
+    )
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(realsense_camera_nodelet src/realsense_camera_nodelet.cpp)
+add_library(realsense_camera_nodelet src/realsense_camera_driver.cpp src/realsense_camera_nodelet.cpp)
 target_link_libraries(realsense_camera_nodelet 
   ${catkin_LIBRARIES}
-  /usr/local/lib/librealsense.so
+  #/usr/local/lib/librealsense.so
 )
-add_dependencies(realsense_camera_nodelet realsense_camera_generate_messages_cpp ${PROJECT_NAME}_gencfg)
+add_dependencies(realsense_camera_nodelet realsense_camera_generate_messages_cpp ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
-add_executable(realsense_camera_test test/realsense_camera_test_node.cpp)
-target_link_libraries(realsense_camera_test 
+add_executable(realsense_camera_node src/realsense_camera_driver.cpp src/realsense_camera_node.cpp )
+target_link_libraries(realsense_camera_node
   ${catkin_LIBRARIES}
-  ${GTEST_LIBRARIES}
 )
-add_dependencies(realsense_camera_test realsense_camera_generate_messages_cpp ${PROJECT_NAME}_gencfg)
+add_dependencies(realsense_camera_node realsense_camera_generate_messages_cpp ${PROJECT_NAME}_gencfg)
+ 
+install(TARGETS realsense_camera_nodelet realsense_camera_node 
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
-add_executable(realsense_camera_test_rgbd test/realsense_camera_test_rgbd_node.cpp)
-target_link_libraries(realsense_camera_test_rgbd 
-  ${catkin_LIBRARIES}
-  ${GTEST_LIBRARIES}
+## install launch files
+install(DIRECTORY launch/
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+    ) 
+
+install(FILES realsense_camera_nodelet_plugins.xml
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-add_dependencies(realsense_camera_test_rgbd realsense_camera_generate_messages_cpp)
+

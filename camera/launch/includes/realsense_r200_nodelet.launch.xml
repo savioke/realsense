@@ -2,13 +2,23 @@
     <!-- Name of nodelet manager, must be fully resolved -->
     <arg name="manager" />
 
-    <arg name="depth_frame_id"      default="camera_depth_optical_frame" />
-    <arg name="rgb_frame_id"        default="camera_rgb_optical_frame" />
-    <arg name="publish_tf"          default="false" />
+    <arg name="device_id"           default="" />
+    <arg name="base_frame_id" />
+    <arg name="depth_frame_id" />
+    <arg name="depth_optical_frame_id" />
+    <arg name="rgb_frame_id" />
+    <arg name="rgb_optical_frame_id" />
+    <arg name="ir_frame_id" />
+    <arg name="ir2_frame_id" />
+    <arg name="publish_tf" />
+
+    <!-- Remapping arguments -->
     <arg name="depth"               default="depth" />
     <arg name="rgb"                 default="rgb" />
     <arg name="ir"                  default="ir" />
     <arg name="ir2"                 default="ir2" />
+   
+    <!-- Stream arguments --> 
     <arg name="enable_depth"        default="true" />
     <arg name="enable_color"        default="true" />
     <arg name="enable_ir"           default="true" />
@@ -18,32 +28,38 @@
     <arg name="enable_depth_ir"     value="$(arg enable_ir)"    if="$(arg enable_ir)" />
     <arg name="enable_depth_ir"     value="$(arg enable_depth)" unless="$(arg enable_ir)" />
     
-    <!-- "enable_tf" will be set to false only if "publish_tf" is true. Else it is set to true.
-         Ensures that the nodelet does not publish tf if the transforms are published statically. -->
-    <arg name="enable_tf"           value="false"    if="$(arg publish_tf)" />
-    <arg name="enable_tf"           value="true"     unless="$(arg publish_tf)" />    
-
-     <!-- "enable_pointcloud" is set to false by default because rgbd launch uses standard ROS packages
+    <!-- "enable_pointcloud" is set to false by default because rgbd launch uses standard ROS packages
           to generate point clouds. -->          
     <arg name="enable_pointcloud"   default="false" />
 
     <node pkg="nodelet" type="nodelet" name="camera_nodelet"
-        args="load realsense_camera/RealsenseNodelet $(arg manager)
-        depth_frame_id $(arg depth_frame_id)
-        rgb_frame_id $(arg rgb_frame_id)
-        enable_depth $(arg enable_depth_ir)
-        enable_color $(arg enable_color)
-        enable_pointcloud $(arg enable_pointcloud)
-        enable_tf $(arg enable_tf)">
-
-        <remap from="camera/depth/image_raw"        to="$(arg depth)/image_raw" />
-        <remap from="camera/color/image_raw"        to="$(arg rgb)/image_raw" />
-        <remap from="camera/infrared1/image_raw"    to="$(arg ir)/image_raw" />
-        <remap from="camera/infrared2/image_raw"    to="$(arg ir2)/image_raw" />
-        <remap from="camera/depth/points"           to="$(arg depth)/points" />
-        <remap from="camera/depth/camera_info"      to="$(arg depth)/camera_info" />
-        <remap from="camera/color/camera_info"      to="$(arg rgb)/camera_info" />
-        <remap from="camera/infrared1/camera_info"  to="$(arg ir)/camera_info" />
-        <remap from="camera/infrared2/camera_info"  to="$(arg ir2)/camera_info" />
+        args="load realsense_camera/RealsenseCameraNodelet $(arg manager)" output="screen">
+	<param name="device_id" type="str" value="$(arg device_id)" />
+	<param name="base_frame_id" type="str" value="$(arg base_frame_id)" />
+	<param name="rgb_frame_id" type="str" value="$(arg rgb_frame_id)" />
+	<param name="rgb_optical_frame_id" type="str" value="$(arg rgb_optical_frame_id)" />
+	<param name="depth_frame_id" type="str" value="$(arg depth_frame_id)" />
+	<param name="depth_optical_frame_id" type="str" value="$(arg depth_optical_frame_id)" />
+	<param name="ir_frame_id" type="str" value="$(arg ir_frame_id)" />
+	<param name="ir2_frame_id" type="str" value="$(arg ir2_frame_id)" />
+        <remap from="ir" to="$(arg ir)" />
+        <remap from="ir2" to="$(arg ir)" />
+        <remap from="rgb" to="$(arg rgb)" />
+        <remap from="depth" to="$(arg depth)" />
     </node>
+    
+    <!--node pkg="realsense_camera" type="realsense_camera_node" name="driver" output="screen"> 
+	<param name="device_id" type="str" value="$(arg device_id)" />
+	<param name="base_frame_id" type="str" value="$(arg base_frame_id)" />
+	<param name="rgb_frame_id" type="str" value="$(arg rgb_frame_id)" />
+	<param name="rgb_optical_frame_id" type="str" value="$(arg rgb_optical_frame_id)" />
+	<param name="depth_frame_id" type="str" value="$(arg depth_frame_id)" />
+	<param name="depth_optical_frame_id" type="str" value="$(arg depth_optical_frame_id)" />
+	<param name="ir_frame_id" type="str" value="$(arg ir_frame_id)" />
+	<param name="ir2_frame_id" type="str" value="$(arg ir2_frame_id)" />
+        <remap from="ir" to="$(arg ir)" />
+        <remap from="ir2" to="$(arg ir)" />
+        <remap from="rgb" to="$(arg rgb)" />
+        <remap from="depth" to="$(arg depth)" />
+    </node-->
 </launch> 

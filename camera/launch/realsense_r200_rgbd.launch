@@ -4,8 +4,14 @@
   <!-- "camera" should uniquely identify the device. All topics are pushed down
        into the "camera" namespace, and it is prepended to tf frame ids. -->
   <arg name="camera"          default="camera" />
-  <arg name="depth_frame_id"  default="$(arg camera)_depth_optical_frame" />
-  <arg name="rgb_frame_id"    default="$(arg camera)_rgb_optical_frame" />
+  <arg name="device_id" default="" />
+  <arg name="base_frame_id"  default="$(arg camera)_link" />
+  <arg name="depth_frame_id"  default="$(arg camera)_depth_frame" />
+  <arg name="depth_optical_frame_id"  default="$(arg camera)_depth_optical_frame" />
+  <arg name="rgb_frame_id"    default="$(arg camera)_rgb_frame" />
+  <arg name="rgb_optical_frame_id"    default="$(arg camera)_rgb_optical_frame" />
+  <arg name="ir_frame_id"    default="$(arg camera)_ir_optical_frame" />
+  <arg name="ir2_frame_id"    default="$(arg camera)_ir2_optical_frame" />
 
   <!-- Use OpenNI's factory-calibrated depth->RGB registration? -->
   <arg name="depth_registration" default="false" />
@@ -36,26 +42,32 @@
   <arg name="respawn" default="false" />
 
   <!-- Worker threads for the nodelet manager -->
-  <arg name="num_worker_threads" default="4" />
+  <arg name="num_worker_threads" default="10" />
  
   <!-- Push down all topics/nodelets into "camera" namespace -->
   <group ns="$(arg camera)">
+	   <!-- Start nodelet manager in provided namespace -->
+	    <arg name="manager" value="$(arg camera)_nodelet_manager" />
+	    <arg name="debug" default="false" /> <!-- Run manager in GDB? -->
+	    <include file="$(find rgbd_launch)/launch/includes/manager.launch.xml">
+	      <arg name="name"                value="$(arg manager)" />
+	      <arg name="debug"               value="$(arg debug)" />
+	      <arg name="num_worker_threads"  value="$(arg num_worker_threads)" />
+	    </include>
 
-    <!-- Start nodelet manager in provided namespace -->
-    <arg name="manager" value="$(arg camera)_nodelet_manager" />
-    <arg name="debug" default="false" /> <!-- Run manager in GDB? -->
-    <include file="$(find rgbd_launch)/launch/includes/manager.launch.xml">
-      <arg name="name"                value="$(arg manager)" />
-      <arg name="debug"               value="$(arg debug)" />
-      <arg name="num_worker_threads"  value="$(arg num_worker_threads)" />
-    </include>
 
-    <!-- Load driver -->
+     <!-- Load driver -->
     <include if="$(arg load_driver)"
              file="$(find realsense_camera)/launch/includes/realsense_r200_nodelet.launch.xml">
       <arg name="manager"                   value="$(arg manager)" />    
-      <arg name="depth_frame_id"            value="$(arg depth_frame_id)" />
+      <arg name="device_id"                 value="$(arg device_id)" />
+      <arg name="base_frame_id"              value="$(arg base_frame_id)" />
       <arg name="rgb_frame_id"              value="$(arg rgb_frame_id)" />
+      <arg name="rgb_optical_frame_id"              value="$(arg rgb_optical_frame_id)" />
+      <arg name="depth_frame_id"            value="$(arg depth_frame_id)" />
+      <arg name="depth_optical_frame_id"            value="$(arg depth_optical_frame_id)" />
+      <arg name="ir_frame_id"            value="$(arg ir_frame_id)" />
+      <arg name="ir2_frame_id"            value="$(arg ir2_frame_id)" />
       <arg name="publish_tf"                value="$(arg publish_tf)" />    
       <arg name="depth"                     value="$(arg depth)" />
       <arg name="rgb"                       value="$(arg rgb)" /> 
@@ -84,6 +96,7 @@
       <arg name="hw_registered_processing"        value="$(arg hw_registered_processing)" />
       <arg name="sw_registered_processing"        value="$(arg sw_registered_processing)" />
     </include>
+
 
   </group> <!-- camera -->
 
