@@ -28,7 +28,7 @@
 #include <memory>
 #include <map>
 
-#include <librealsense/rs.hpp>
+#include <librealsense/librealsense/rs.hpp>
 #include <dynamic_reconfigure/server.h>
 #include <realsense_camera/camera_paramsConfig.h>
 

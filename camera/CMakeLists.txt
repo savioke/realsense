@@ -26,7 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   rostest
   pcl_ros
-  realsense
+  librealsense
 )
 
 #add dynamic reconfigure api
@@ -35,7 +35,8 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-    CATKIN_DEPENDS dynamic_reconfigure roscpp nodelet cv_bridge image_transport camera_info_manager tf message_generation std_msgs sensor_msgs pcl_ros realsense
+    CATKIN_DEPENDS dynamic_reconfigure roscpp nodelet cv_bridge image_transport camera_info_manager tf
+    message_generation std_msgs sensor_msgs pcl_ros librealsense
     LIBRARIES realsense_camera_nodelet
     )
 
