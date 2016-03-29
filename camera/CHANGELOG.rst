@@ -2,8 +2,8 @@
 Changelog for package realsense_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.2 (2016-03-29)
+------------------
 * Fix up package.xml, CMakeLists.txt and include dirs to work with savioke debians of librealsense
 * Contributors: liz
 
